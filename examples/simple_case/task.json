@@ -1,0 +1,76 @@
+{
+  "name": "simple_score_loop",
+  "objective": "将通用候选方案的得分从 0.40 提升到 0.75 以上。",
+  "metric": {
+    "name": "score",
+    "direction": "maximize",
+    "initial": 0.4,
+    "target": 0.75,
+    "epsilon": 0.001
+  },
+  "max_iterations": 3,
+  "rules": [
+    "每轮只尝试一个小而可验证的改动。",
+    "只有分数提升、证据完整且代码审核通过的候选才能保留。",
+    "证据不足时必须请求人工审查。"
+  ],
+  "executor_tools": [
+    {
+      "name": "mock_experiment_runner",
+      "mode": "mock",
+      "description": "根据当轮预置结果返回原始分数、日志和产物，不运行真实业务程序。"
+    }
+  ],
+  "evaluator_tools": [
+    {
+      "name": "mock_result_analyzer",
+      "mode": "mock",
+      "description": "根据原始分数和证据路径形成声明式评估工具记录。"
+    }
+  ],
+  "evaluator_skills": [
+    {
+      "name": "code-review-skill",
+      "mode": "prompt",
+      "description": "加载项目自有技能并记录固定的代码审核结果。"
+    }
+  ],
+  "evaluation_rules": [
+    "候选分数高于当前最优分数才算指标改善。",
+    "必要证据齐全且代码审核通过后才能给出 improved。",
+    "缺少必要证据时给出 insufficient_evidence 并请求人工审查。"
+  ],
+  "required_evidence": [
+    "metrics.json",
+    "logs.txt",
+    "artifacts/evidence.json"
+  ],
+  "human_review": {
+    "triggers": [
+      "insufficient_evidence",
+      "inconclusive",
+      "consecutive_failures"
+    ],
+    "max_consecutive_failures": 2
+  },
+  "demo_fixtures": [
+    {
+      "score": 0.62,
+      "evidence_available": true,
+      "change_summary": "执行第一项小改动并收集完整证据。",
+      "tool_result": "模拟实验工具调用成功，得分为 0.62，证据完整。"
+    },
+    {
+      "score": 0.61,
+      "evidence_available": false,
+      "change_summary": "尝试第二项改动，但没有形成完整证据链。",
+      "tool_result": "模拟实验工具调用成功，得分为 0.61，证据不完整。"
+    },
+    {
+      "score": 0.78,
+      "evidence_available": true,
+      "change_summary": "根据失败记忆补齐证据后再次执行小改动。",
+      "tool_result": "模拟实验工具调用成功，得分为 0.78，证据完整。"
+    }
+  ]
+}

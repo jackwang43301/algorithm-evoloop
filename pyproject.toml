@@ -1,0 +1,14 @@
+[project]
+name = "algorithm-evoloop"
+version = "0.1.0"
+description = "algorithm-evoloop: a configurable LLM API driven multi-agent loop for reproducible self-iteration across complex algorithm and engineering tasks."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+algorithm-evoloop = "algorithm_evoloop.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algorithm_evoloop*"]
